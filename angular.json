@@ -43,7 +43,12 @@
             "tsConfig": "projects/main/tsconfig.app.json",
             "assets": [
               "projects/main/src/favicon.ico",
-              "projects/main/src/assets"
+              "projects/main/src/assets",
+              {
+                "glob": "**/*",
+                "input": "data",
+                "output": "/data/"
+              }
             ],
             "styles": [
               "projects/main/src/styles.scss"
