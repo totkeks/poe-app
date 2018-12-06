@@ -29,7 +29,7 @@ export class TreeNode {
   hint?: string;
 }
 
-export class Edge {
-  from: TreeNode;
-  to: TreeNode;
+export interface Edge {
+  origin: TreeNode;
+  destination: TreeNode;
 }

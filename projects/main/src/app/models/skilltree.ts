@@ -1,4 +1,4 @@
-import { TreeNode, NodeType } from '../modules/skilltree/models/node';
+import { TreeNode, NodeType, Edge } from '../modules/skilltree/models/node';
 import { Point } from '../modules/skilltree/models/point';
 import { Orbit, NodesPerOrbit, OrbitRadii } from '../modules/skilltree/shared/constants';
 
@@ -6,6 +6,7 @@ export class SkillTree {
   private data: any;
 
   nodes: Map<number, TreeNode>;
+  edges: Edge[];
   rootNode: TreeNode;
   bottomLeft: Point;
   topRight: Point;
@@ -14,16 +15,14 @@ export class SkillTree {
 
   load(jsonData: any) {
     this.nodes = new Map();
+    this.edges = [];
     this.rootNode = undefined;
 
     this.data = jsonData;
 
     this.buildNodes();
-    this.connectNodesWithNodes();
+    this.buildEdges();
     this.buildRootNode();
-
-    this.bottomLeft = { x: this.data.min_x, y: this.data.min_y };
-    this.topRight = { x: this.data.max_x, y: this.data.max_y };
 
     // Free up memory after processing
     this.data = undefined;
@@ -110,16 +109,20 @@ export class SkillTree {
     console.log(`created ${this.nodes.size} nodes`);
   }
 
-  private connectNodesWithNodes() {
+  private buildEdges() {
     for (const jsonNode of Object.values<any>(this.data.nodes)) {
-      const sourceNode = this.nodes.get(jsonNode.id);
+      const origin = this.nodes.get(jsonNode.id);
 
       for (const id of jsonNode.out) {
-        const targetNode = this.nodes.get(id);
-        sourceNode.outEdges.push(targetNode);
-        targetNode.inEdges.push(sourceNode);
+        const destination = this.nodes.get(id);
+
+        origin.outEdges.push(destination);
+        destination.inEdges.push(origin);
+        this.edges.push({ origin, destination });
       }
     }
+
+    console.log(`created ${this.edges.length} edges`);
   }
 
   private buildRootNode() {
