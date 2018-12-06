@@ -1,54 +1,137 @@
-export interface Point {
-  x: number;
-  y: number;
-}
+import { TreeNode, NodeType } from '../modules/skilltree/models/node';
+import { Point } from '../modules/skilltree/models/point';
+import { Orbit, NodesPerOrbit, OrbitRadii } from '../modules/skilltree/shared/constants';
 
-export class NodeGroup {
-  id: number;
-  center: Point;
-  nodes: TreeNode[];
-  occupiedOrbits: any; // TODO
-}
+export class SkillTree {
+  private data: any;
 
-export enum NodeType {
-  Root,
-  Regular,
-  Mastery,
-  Notable,
-  Keystone,
-  JewelSocket,
+  nodes: Map<number, TreeNode>;
+  rootNode: TreeNode;
+  bottomLeft: Point;
+  topRight: Point;
 
-  ClassStart,
-  AscendencyStart,
-  MultipleChoice,
-  MultipleChoiceOption
-}
+  constructor() { }
 
-export enum OrbitRadius {
-  Single = 0,
-  Small = 82,
-  Medium = 162,
-  Large = 335,
-  Largest = 493
-}
+  load(jsonData: any) {
+    this.nodes = new Map();
+    this.rootNode = undefined;
 
-export const NodesPerOrbit = new Map<OrbitRadius, number>()
-  .set(OrbitRadius.Single, 1)
-  .set(OrbitRadius.Small, 6)
-  .set(OrbitRadius.Medium, 12)
-  .set(OrbitRadius.Large, 12)
-  .set(OrbitRadius.Largest, 40);
+    this.data = jsonData;
 
-export class TreeNode {
-  /** Unique id of the node. */
-  id: number;
-  group: NodeGroup;
-  name: string;
+    this.buildNodes();
+    this.connectNodesWithNodes();
+    this.buildRootNode();
 
-  // TODO bring together as class
-  orbit: number;
-  orbitIndex: number;
+    this.bottomLeft = { x: this.data.min_x, y: this.data.min_y };
+    this.topRight = { x: this.data.max_x, y: this.data.max_y };
 
-  stats: string[];
-  hint?: string;
+    // Free up memory after processing
+    this.data = undefined;
+  }
+
+  private detectNodeType(jsonNode: any): NodeType {
+    let nodeType: NodeType;
+
+    if (jsonNode.ks) {
+      nodeType = NodeType.Keystone;
+    } else if (jsonNode.not) {
+      nodeType = NodeType.Notable;
+    } else if (jsonNode.m) {
+      nodeType = NodeType.Mastery;
+    } else if (jsonNode.isJewelSocket) {
+      nodeType = NodeType.JewelSocket;
+    } else if (jsonNode.isAscendancyStart) {
+      nodeType = NodeType.AscendencyStart;
+    } else if (jsonNode.isMultipleChoice) {
+      nodeType = NodeType.MultipleChoice;
+    } else if (jsonNode.isMultipleChoiceOption) {
+      nodeType = NodeType.MultipleChoiceOption;
+    } else if (jsonNode.spc && jsonNode.spc.length > 0) {
+      nodeType = NodeType.ClassStart;
+    } else {
+      nodeType = NodeType.Regular;
+    }
+
+    return nodeType;
+  }
+
+  private calculateNodePosition(groupId: number, indexOnOrbit: number, orbit: Orbit): Point {
+    const group = this.data.groups[groupId.toString()];
+
+    const angle = 2 * Math.PI * indexOnOrbit / NodesPerOrbit.get(orbit);
+    const x = group.x - OrbitRadii.get(orbit) * Math.sin(-angle);
+    const y = group.y - OrbitRadii.get(orbit) * Math.cos(-angle);
+
+    return { x, y };
+  }
+
+  private decodeOrbit(orbitToDecode: number): Orbit {
+    let orbit: Orbit;
+
+    switch (orbitToDecode) {
+      case 0:
+        orbit = Orbit.Single;
+        break;
+      case 1:
+        orbit = Orbit.Small;
+        break;
+      case 2:
+        orbit = Orbit.Medium;
+        break;
+      case 3:
+        orbit = Orbit.Large;
+        break;
+      case 4:
+        orbit = Orbit.ExtraLarge;
+        break;
+      default:
+        console.error(`invalid orbit ${orbitToDecode}`);
+    }
+
+    return orbit;
+  }
+
+  private buildNodes() {
+    for (const jsonNode of Object.values<any>(this.data.nodes)) {
+      const treeNode = new TreeNode();
+      treeNode.id = jsonNode.id;
+      treeNode.name = jsonNode.dn;
+      treeNode.icon = jsonNode.icon;
+      treeNode.type = this.detectNodeType(jsonNode);
+
+      treeNode.position = this.calculateNodePosition(jsonNode.g, jsonNode.oidx, this.decodeOrbit(jsonNode.o));
+
+      treeNode.inEdges = [];
+      treeNode.outEdges = [];
+
+      this.nodes.set(treeNode.id, treeNode);
+    }
+
+    console.log(`created ${this.nodes.size} nodes`);
+  }
+
+  private connectNodesWithNodes() {
+    for (const jsonNode of Object.values<any>(this.data.nodes)) {
+      const sourceNode = this.nodes.get(jsonNode.id);
+
+      for (const id of jsonNode.out) {
+        const targetNode = this.nodes.get(id);
+        sourceNode.outEdges.push(targetNode);
+        targetNode.inEdges.push(sourceNode);
+      }
+    }
+  }
+
+  private buildRootNode() {
+    const rootNode = new TreeNode();
+    rootNode.id = 0;
+    rootNode.type = NodeType.Root;
+    rootNode.outEdges = [];
+
+    for (const id of this.data.root.out) {
+      rootNode.outEdges.push(this.nodes.get(id));
+    }
+
+    this.rootNode = rootNode;
+  }
 }

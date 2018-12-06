@@ -1,1 +1,31 @@
-/* You can add global styles to this file, and also import other style files */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  width: 100vw;
+  height: 100vh;
+
+  display: grid;
+  grid-template-rows: 100px 1fr 30px;
+  row-gap: 0;
+  column-gap: 0;
+}
+
+.header {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.main {
+  background: lightgrey;
+
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.footer {
+  grid-row: 3;
+}
