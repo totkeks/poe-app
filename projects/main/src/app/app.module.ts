@@ -4,17 +4,20 @@ import { NgModule } from '@angular/core';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { SkilltreeComponent } from './skilltree/skilltree.component';
+import { SkilltreeComponent } from './modules/skilltree/components/skilltree.component';
+import { NodeComponent } from './modules/skilltree/components/node.component';
+import { EdgeComponent } from './modules/skilltree/components/edge.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    SkilltreeComponent
+    SkilltreeComponent,
+    NodeComponent,
+    EdgeComponent
   ],
   imports: [
     BrowserModule,
-    HttpClientModule,
-    AppRoutingModule
+    HttpClientModule
   ],
   providers: [],
   bootstrap: [AppComponent]

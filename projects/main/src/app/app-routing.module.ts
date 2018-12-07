@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { SkilltreeComponent } from './skilltree/skilltree.component';
+import { SkilltreeComponent } from './modules/skilltree/components/skilltree.component';
 
 const routes: Routes = [
   {

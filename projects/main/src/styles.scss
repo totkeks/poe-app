@@ -29,3 +29,14 @@ html, body {
 .footer {
   grid-row: 3;
 }
+
+#skilltree {
+  width: 100%;
+  height: 100%;
+}
+
+.node {
+  &:hover {
+    r: 20;
+  }
+}

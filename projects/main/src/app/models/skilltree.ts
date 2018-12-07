@@ -118,6 +118,11 @@ export class SkillTree {
 
         origin.outEdges.push(destination);
         destination.inEdges.push(origin);
+
+        // TODO: check if this breaks something
+        // Do not create edges to and from ascendancies
+        if (destination.type === NodeType.AscendencyStart) { continue; }
+        if (origin.name.startsWith('Path of the')) { continue; }
         this.edges.push({ origin, destination });
       }
     }

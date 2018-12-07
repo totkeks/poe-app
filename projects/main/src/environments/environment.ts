@@ -3,7 +3,8 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  skilltree: '/data/3.5.0/skilltree.json'
 };
 
 /*
