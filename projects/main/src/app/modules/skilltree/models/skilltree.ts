@@ -1,4 +1,4 @@
-import { TreeNode, NodeType, Edge } from './node';
+import { TreeNode, NodeType, Edge, Icon } from './node';
 import { Point } from './point';
 import { Orbit, NodesPerOrbit, OrbitRadii } from '../shared/constants';
 
@@ -51,6 +51,8 @@ export class SkillTree {
       nodeType = NodeType.Regular;
     }
 
+    // TODO: add another node type for group background icons, as those nodes are not reachable (groupNode? unreachable?)
+
     return nodeType;
   }
 
@@ -90,13 +92,59 @@ export class SkillTree {
     return orbit;
   }
 
+  private findIconInSprites(iconPath: string, nodeType: NodeType): Icon {
+    let sprites: Array<any>;
+
+    switch (nodeType) {
+      case NodeType.Regular:
+        sprites = this.data.skillSprites.normalActive;
+        break;
+
+      case NodeType.Keystone:
+        sprites = this.data.skillSprites.keystoneActive;
+        break;
+
+      case NodeType.Notable:
+        sprites = this.data.skillSprites.notableInactive;
+        break;
+
+      case NodeType.Mastery:
+        sprites = this.data.skillSprites.mastery;
+        break;
+
+      default:
+        return undefined;
+    }
+
+    for (const sprite of sprites) {
+      const filename: string = sprite.filename;
+      const m = filename.match(/(\w+-?\w*)-(\d)\.(\w+)\?/);
+      const spriteName = m[1];
+      const zoomLevel = m[2];
+      const extension = m[3];
+
+      if (zoomLevel !== '3') { continue; }
+
+      const coords = sprite.coords[iconPath];
+
+      return {
+        spriteFile: `${spriteName}.${extension}`,
+        width: coords.w,
+        height: coords.h,
+        x: coords.x,
+        y: coords.y
+      };
+    }
+  }
+
   private buildNodes() {
     for (const jsonNode of Object.values<any>(this.data.nodes)) {
       const treeNode = new TreeNode();
       treeNode.id = jsonNode.id;
       treeNode.name = jsonNode.dn;
-      treeNode.icon = jsonNode.icon;
       treeNode.type = this.detectNodeType(jsonNode);
+
+      treeNode.icon = this.findIconInSprites(jsonNode.icon, treeNode.type);
 
       treeNode.position = this.calculateNodePosition(jsonNode.g, jsonNode.oidx, this.decodeOrbit(jsonNode.o));
 

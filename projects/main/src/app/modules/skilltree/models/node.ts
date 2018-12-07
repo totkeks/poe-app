@@ -18,7 +18,7 @@ export class TreeNode {
   /** Unique id of the node. */
   id: number;
   name: string;
-  icon: string;
+  icon: Icon;
   type: NodeType;
 
   position: Point;
@@ -32,4 +32,12 @@ export class TreeNode {
 export interface Edge {
   origin: TreeNode;
   destination: TreeNode;
+}
+
+export interface Icon {
+  spriteFile: string;
+  width: number;
+  height: number;
+  x: number;
+  y: number;
 }
