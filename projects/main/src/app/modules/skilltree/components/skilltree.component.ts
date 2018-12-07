@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import * as SvgPanZoom from 'svg-pan-zoom';
 
 import { environment } from '../../../../environments/environment';
-import { SkillTree } from '../../../models/skilltree';
+import { SkillTree } from '../models/skilltree';
 import { TreeNode, Edge, NodeType } from '../models/node';
 
 @Component({

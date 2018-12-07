@@ -1,6 +1,6 @@
-import { TreeNode, NodeType, Edge } from '../modules/skilltree/models/node';
-import { Point } from '../modules/skilltree/models/point';
-import { Orbit, NodesPerOrbit, OrbitRadii } from '../modules/skilltree/shared/constants';
+import { TreeNode, NodeType, Edge } from './node';
+import { Point } from './point';
+import { Orbit, NodesPerOrbit, OrbitRadii } from '../shared/constants';
 
 export class SkillTree {
   private data: any;
