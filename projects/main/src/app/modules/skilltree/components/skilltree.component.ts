@@ -11,8 +11,12 @@ import { TreeNode, Edge, NodeType } from '../models/node';
   template: `
     <svg id="skilltree">
       <ng-container *ngIf="finishedLoading">
-        <g id="edges" [edge]="edge" *ngFor="let edge of edges"></g>
-        <g id="nodes" [node]="node" *ngFor="let node of nodes"></g>
+        <g id="edges">
+          <g [edge]="edge" *ngFor="let edge of edges"></g>
+        </g>
+        <g id="nodes">
+          <g [node]="node" *ngFor="let node of nodes"></g>
+        </g>
       </ng-container>
     </svg>
   `
